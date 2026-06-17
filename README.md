@@ -1,27 +1,28 @@
 # 🐦 Canvas Flappy Bird (OOP Arcade Engine)
 
-Микро-аркада на чистом JavaScript, реализованная на базе HTML5 Canvas API без сторонних игровых движков. Архитектура построена на паттерне стейт-менеджера, управляющего игровым циклом через `requestAnimationFrame`.
+A micro-arcade game built on vanilla JavaScript and HTML5 Canvas API. No external game engines used. The architecture is based on a singleton state manager (`game`) that controls the game loop via native display synchronization.
 
----
+## 🏗 Architectural Decisions & Optimization
 
-## 🏗 Архитектурные решения и оптимизация
+* **Memory Management & Garbage Collection:** Instead of letting the obstacle array grow infinitely, the engine uses a high-performance `this.columns.shift()` call to remove objects immediately after they exit the canvas viewport, preventing performance degradation during long sessions.
+* **Asynchronous Asset Preloader:** To avoid Race Conditions during texture loading, a custom `onload` event counter is implemented. The game loop and geometry generation are blocked until all assets (`bird`, `background`, `columns`) are cached in memory.
+* **Frame Synchronization:** Uses `requestAnimationFrame` instead of `setInterval` to prevent micro-stuttering and CPU-heavy background processing. It automatically syncs with the monitor's refresh rate (60Hz/120Hz/144Hz) and pauses execution when the browser tab is inactive.
+* **AABB Collision Detection:** Implements Axis-Aligned Bounding Box detection to validate collisions between the bird and both column segments simultaneously, including boundary checks for the game field.
 
-* **Управление памятью:** В движке реализована автоматическая очистка массива препятствий (`this.columns.shift()`) сразу после их выхода за пределы холста, что предотвращает деградацию производительности при длительных сессиях.
-* **Асинхронный предзагрузчик:** Использование счетчика событий `onload` гарантирует, что игровой цикл начнется только после полной кэшировки текстур в памяти, предотвращая ошибки отрисовки.
-* **Синхронизация кадров:** Использование `requestAnimationFrame` вместо `setInterval` обеспечивает плавную анимацию, синхронизированную с частотой обновления дисплея (60/120/144Hz) и автоматическую приостановку при смене вкладок.
-* **Детекция коллизий (AABB):** Алгоритм пересечения прямоугольных рамок (Axis-Aligned Bounding Box) для птицы и сегментов труб с проверкой границ игрового поля.
+## 🎨 Styling & System Context
 
-## 🎨 Адаптивный стиль
-Окружение автоматически подстраивается под системную тему (`prefers-color-scheme`):
-* Dark Mode: Темный фон, контрастная рамка.
-* Light Mode: Светлый фон, четкий фокус на игровом поле.
+The interface natively supports `prefers-color-scheme`. The canvas context automatically adapts to OS-level theme settings:
+* **Dark Mode (Default):** Black environment, high-contrast white canvas border.
+* **Light Mode:** White environment, sharp black border for focus.
 
-## 🔧 Структура проекта
-* index.html: Инициализация <canvas> (288x512px) и подключение стилей.
-* script.js: Логика состояний, физический движок (гравитация, импульсы) и обработчик коллизий.
+## 🔧 Project Structure
 
-## 🎮 Управление
-* Любая клавиша: Импульс взлета (противодействие гравитации).
-* Столкновение: Автоматический рестарт контекста сессии.
+* `index.html` — Declarative markup, `<canvas>` initialization (288x512px), and CSS injection.
+* `script.js` — State machine logic, `keydown` event handling, gravity physics calculation, and collision detection.
+
+## 🎮 Controls
+
+* `Any Keyboard Key` — Jump impulse (counteracting gravity).
+* `Collision` — Triggers automatic session context restart (`location.reload()`) and resets the score counter.
 
 ---
